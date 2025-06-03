@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Search Buses - Ebus Management</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #e3f2fd;
+    }
+
+    header {
+      background-color: #1976D2;
+      padding: 1rem;
+      text-align: center;
+      color: white;
+      font-size: 1.5rem;
+      font-weight: bold;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .bus-list {
+      max-width: 1000px;
+      margin: 2rem auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+      padding: 0 1rem;
+    }
+
+    .bus-card {
+      background-color: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+      transition: transform 0.2s ease;
+    }
+
+    .bus-card:hover {
+      transform: translateY(-5px);
+    }
+
+    .bus-title {
+      color: #0D47A1;
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+    }
+
+    .bus-detail {
+      margin-bottom: 0.4rem;
+      color: #333;
+    }
+
+    .no-buses {
+      text-align: center;
+      margin-top: 4rem;
+      font-size: 1.2rem;
+      color: #777;
+    }
+
+    .back-btn-container {
+      display: flex;
+      justify-content: center;
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .back-btn {
+      padding: 0.7rem 1.5rem;
+      background-color: #1976D2;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease, transform 0.2s ease;
+    }
+
+    .back-btn:hover {
+      background-color: #0d47a1;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <header>Available Buses</header>
+
+  <div id="busContainer" class="bus-list">
+    <!-- Bus cards will be injected here -->
+  </div>
+
+  <p id="noBusesMsg" class="no-buses" style="display: none;">No buses available currently.</p>
+
+  <div class="back-btn-container">
+  <a href="index.html" class="back-btn">← Back to Dashboard</a>
+</div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getFirestore, collection, getDocs } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCwd4jPJ4O_WevadMM2eYiqA3934VWdc84",
+      authDomain: "ebus-management-b465b.firebaseapp.com",
+      projectId: "ebus-management-b465b",
+      storageBucket: "ebus-management-b465b.firebasestorage.app",
+      messagingSenderId: "937392993843",
+      appId: "1:937392993843:web:98dd10fabf25e7976f9546",
+      measurementId: "G-SQ9CEMN0NT"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const busContainer = document.getElementById('busContainer');
+    const noBusesMsg = document.getElementById('noBusesMsg');
+
+    async function fetchBuses() {
+      const querySnapshot = await getDocs(collection(db, "buses"));
+      if (querySnapshot.empty) {
+        noBusesMsg.style.display = 'block';
+        return;
+      }
+
+      querySnapshot.forEach((doc) => {
+        const bus = doc.data();
+        const card = document.createElement('div');
+        card.className = 'bus-card';
+        card.innerHTML = `
+          <div class="bus-title">${bus.busNumber || 'Unknown Bus'}</div>
+          <div class="bus-detail"><strong>From:</strong> ${bus.source}</div>
+          <div class="bus-detail"><strong>To:</strong> ${bus.destination}</div>
+          <div class="bus-detail"><strong>Time:</strong> ${bus.departureTime}</div>
+          <div class="bus-detail"><strong>Status:</strong> ${bus.status || 'Running'}</div>
+        `;
+        busContainer.appendChild(card);
+      });
+    }
+
+    fetchBuses();
+
+    function goBack() {
+      window.location.href = "index.html";
+    }
+  </script>
+</body>
+</html>

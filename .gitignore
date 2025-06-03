@@ -1,0 +1,26 @@
+# Node modules (if any backend later)
+node_modules/
+
+# Firebase cache and logs
+.firebase/
+.firebaserc
+
+# Environment files (if you add any)
+.env
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# VSCode settings (optional)
+.vscode/
+
+# Build or dist folders (if added later)
+dist/
+build/
+
+# npm-debug files
+npm-debug.log*

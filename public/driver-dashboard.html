@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Driver Dashboard - Ebus Management</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f8ff;
+    }
+
+    header {
+      background-color: #1565C0;
+      padding: 1rem;
+      text-align: center;
+      color: white;
+      font-size: 1.6rem;
+      font-weight: bold;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+
+    .dashboard-container {
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: #0D47A1;
+    }
+
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .button, .home-button {
+      width: 100%;
+      padding: 0.8rem;
+      font-size: 1rem;
+      background-color: #1976D2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-top: 1rem;
+    }
+
+    .button:hover, .home-button:hover {
+      background-color: #0d47a1;
+    }
+
+    .message {
+      margin-top: 1rem;
+      text-align: center;
+      color: green;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <header>Driver Dashboard</header>
+
+  <div class="dashboard-container">
+    <h2>Update Bus Info</h2>
+    <form id="bus-form">
+      <div class="form-group">
+        <label for="bus-number">Bus Number</label>
+        <input type="text" id="bus-number" required />
+      </div>
+
+      <div class="form-group">
+        <label for="source">Source</label>
+        <input type="text" id="source" required />
+      </div>
+
+      <div class="form-group">
+        <label for="destination">Destination</label>
+        <input type="text" id="destination" required />
+      </div>
+
+      <div class="form-group">
+        <label for="time">Departure Time</label>
+        <input type="time" id="time" required />
+      </div>
+
+      <div class="form-group">
+        <label for="status">Status</label>
+        <select id="status">
+          <option value="On Time">On Time</option>
+          <option value="Delayed">Delayed</option>
+          <option value="Cancelled">Cancelled</option>
+        </select>
+      </div>
+
+      <button type="submit" class="button">Submit Info</button>
+      <p id="message" class="message" style="display:none;"></p>
+    </form>
+
+    <!-- Back to Home Button -->
+    <button class="home-button" onclick="location.href='index.html'">Back to Home</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyCwd4jPJ4O_WevadMM2eYiqA3934VWdc84",
+      authDomain: "ebus-management-b465b.firebaseapp.com",
+      projectId: "ebus-management-b465b",
+      storageBucket: "ebus-management-b465b.appspot.com",
+      messagingSenderId: "937392993843",
+      appId: "1:937392993843:web:98dd10fabf25e7976f9546",
+      measurementId: "G-SQ9CEMN0NT"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    const form = document.getElementById("bus-form");
+    const message = document.getElementById("message");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const busNumber = document.getElementById("bus-number").value;
+      const source = document.getElementById("source").value;
+      const destination = document.getElementById("destination").value;
+      const time = document.getElementById("time").value;
+      const status = document.getElementById("status").value;
+
+      try {
+        await setDoc(doc(db, "buses", busNumber), {
+          busNumber,
+          source,
+          destination,
+          departureTime: time,
+          status
+        });
+
+        message.style.display = "block";
+        message.textContent = "Bus info updated successfully!";
+        message.style.color = "green";
+        form.reset();
+      } catch (error) {
+        message.style.display = "block";
+        message.style.color = "red";
+        message.textContent = "Failed to update: " + error.message;
+      }
+    });
+  </script>
+</body>
+</html>

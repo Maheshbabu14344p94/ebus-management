@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Dashboard - Ebus Management</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #eef3f7;
+    }
+
+    header {
+      background-color: #0D47A1;
+      padding: 1rem;
+      text-align: center;
+      color: white;
+      font-size: 1.6rem;
+      font-weight: bold;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+    }
+
+    .dashboard {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+    }
+
+    h2 {
+      text-align: center;
+      color: #1565C0;
+      margin-bottom: 2rem;
+    }
+
+    .bus-list {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .bus-list th, .bus-list td {
+      padding: 0.8rem 1rem;
+      border: 1px solid #ccc;
+      text-align: left;
+    }
+
+    .bus-list th {
+      background-color: #e3f2fd;
+    }
+
+    .delete-btn {
+      background-color: #d32f2f;
+      color: white;
+      padding: 0.5rem 0.8rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .delete-btn:hover {
+      background-color: #b71c1c;
+    }
+
+    .message {
+      text-align: center;
+      color: green;
+      font-weight: bold;
+      margin-top: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+<header>Admin Dashboard</header>
+
+<div class="dashboard">
+  <h2>All Bus Information</h2>
+  <table class="bus-list">
+    <thead>
+      <tr>
+        <th>Bus Number</th>
+        <th>Source</th>
+        <th>Destination</th>
+        <th>Departure Time</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="bus-table-body">
+      <!-- Bus rows go here -->
+    </tbody>
+  </table>
+  <p class="message" id="admin-message"></p>
+</div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+  import { getFirestore, collection, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+ const firebaseConfig = {
+  apiKey: "AIzaSyCwd4jPJ4O_WevadMM2eYiqA3934VWdc84",
+  authDomain: "ebus-management-b465b.firebaseapp.com",
+  projectId: "ebus-management-b465b",
+  storageBucket: "ebus-management-b465b.firebasestorage.app",
+  messagingSenderId: "937392993843",
+  appId: "1:937392993843:web:98dd10fabf25e7976f9546",
+  measurementId: "G-SQ9CEMN0NT"
+};
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  const busTableBody = document.getElementById("bus-table-body");
+  const message = document.getElementById("admin-message");
+
+  async function fetchBuses() {
+    const querySnapshot = await getDocs(collection(db, "buses"));
+    busTableBody.innerHTML = "";
+
+    querySnapshot.forEach(docSnap => {
+      const bus = docSnap.data();
+      const row = document.createElement("tr");
+
+      row.innerHTML = `
+        <td>${bus.busNumber}</td>
+        <td>${bus.source}</td>
+        <td>${bus.destination}</td>
+        <td>${bus.departureTime}</td>
+        <td>${bus.status}</td>
+        <td><button class="delete-btn" data-id="${bus.busNumber}">Delete</button></td>
+      `;
+
+      busTableBody.appendChild(row);
+    });
+
+    addDeleteListeners();
+  }
+
+  function addDeleteListeners() {
+    const deleteButtons = document.querySelectorAll(".delete-btn");
+    deleteButtons.forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const id = btn.getAttribute("data-id");
+        try {
+          await deleteDoc(doc(db, "buses", id));
+          message.textContent = "Deleted successfully!";
+          fetchBuses();
+        } catch (error) {
+          message.style.color = "red";
+          message.textContent = "Error deleting: " + error.message;
+        }
+      });
+    });
+  }
+
+  fetchBuses();
+</script>
+
+</body>
+</html>
